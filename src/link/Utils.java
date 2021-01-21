@@ -24,8 +24,10 @@ public class Utils
         return null;
     }
 
-    public static void add(String path)
+    public static File add(String path)
     {
-        history.add(new File(path));
+        File file = new File(path);
+        history.add(file);
+        return file;
     }
 }

@@ -11,9 +11,8 @@ import java.time.Duration;
 
 public class Downloader
 {
-    public boolean touchLink(String link)
+    public boolean touchLink(String link, File output)
     {
-        File output = new File("result.zip");
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(link))
