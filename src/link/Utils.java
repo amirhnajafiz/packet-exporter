@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Utils
 {
-    public static ArrayList<File> history;
+    private static ArrayList<File> history;
 
     public static void utilsInit()
     {

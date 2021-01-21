@@ -1,7 +1,6 @@
 package link;
 
 import java.io.File;
-import java.util.Scanner;
 
 public class Main
 {
@@ -13,17 +12,20 @@ public class Main
     public static void main(String[] args)
     {
         Utils.utilsInit();
+        Waiter.waiterInit();
+
         Downloader downloader = new Downloader();
-        Scanner scanner = new Scanner(System.in);
         messageInConsole("Enter url > ");
-        String link = scanner.next();
+        String link = Waiter.getOrderByString();
+
         messageInConsole("Enter output > ");
-        String output = scanner.next();
+        String output = Waiter.getOrderByString();
         File output_file = Utils.open(output);
         if (output_file == null)
         {
             output_file = Utils.add(output);
         }
+
         boolean result = downloader.touchLink(link, output_file);
         if (result)
         {
