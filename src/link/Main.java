@@ -1,5 +1,6 @@
 package link;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -11,6 +12,7 @@ public class Main
 {
     public static void main(String[] args)
     {
+        File output = new File("result.html");
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://www.google.com"))
@@ -18,7 +20,7 @@ public class Main
                 .build();
         try
         {
-            HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpResponse response = client.send(request, HttpResponse.BodyHandlers.ofFile(output.toPath()));
             System.out.println(response.statusCode() + " " + response.version());
         } catch (IOException | InterruptedException e)
         {
