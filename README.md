@@ -6,7 +6,7 @@ For the frontend use javaFx to create a user interface for defining the file nam
 
 
 ### Todo list
-- [ ] Create httpclient
+- [x] Create httpclient
 - [ ] Test for downloading items
 - [ ] Create javaFx templates
 - [ ] Connect the fx to our module
