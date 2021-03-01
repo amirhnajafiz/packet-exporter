@@ -1,4 +1,4 @@
-package link;
+package com.link;
 
 import java.io.File;
 import java.io.IOException;
