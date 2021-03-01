@@ -1,4 +1,15 @@
 # LinkTouch
 
-Simple Java program to download with links.<br />
-Using the HTTP client to send the requests and download the files into the names that the user wants.<br />
+<p>
+    <b>What is LinkTouch ?</b>
+    <pre>
+    Simple Java program to download files with their links.
+    This is likely a simple download manager.    </pre>
+</p>
+
+### How it works ?
+<p>
+    This program uses the <i>Spring framwrork</i> among of <i>maven files</i> to create a simple server.<br />
+    After that it uses <i>Java Script</i> to get the data from our frontend and send it to runnable methods in backend.<br />
+</p>
+
