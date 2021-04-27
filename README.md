@@ -1,10 +1,9 @@
 # LinkTouch
 
 <p>
-    <b>What is LinkTouch ?</b>
-    <pre>
+    <b>What is LinkTouch ?</b><br />
     Simple Java program to download files with their links.
-    This is likely a simple download manager.    </pre>
+    This is likely a simple download manager.
 </p>
 
 ### How it works ?
