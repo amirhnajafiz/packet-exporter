@@ -1,5 +1,5 @@
 <template>
   <div>
-    Home page
+    Welcome to Stallion
   </div>
 </template>
