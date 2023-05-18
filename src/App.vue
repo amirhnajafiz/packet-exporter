@@ -8,6 +8,8 @@ import { RouterLink, RouterView } from 'vue-router'
       <nav>
         <RouterLink class="link" to="/">Home</RouterLink>
         <RouterLink class="link" to="/about">About</RouterLink>
+        <RouterLink class="link" to="/">Documents</RouterLink>
+        <RouterLink class="link right-link" to="/">Github</RouterLink>
       </nav>
     </div>
   </header>
@@ -35,5 +37,9 @@ nav {
 
 .link:hover {
   color: rgb(120, 120, 120);
+}
+
+.right-link {
+  float: right;
 }
 </style>
