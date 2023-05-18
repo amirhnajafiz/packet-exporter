@@ -24,8 +24,9 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <style scoped>
 .wrapper {
-  margin: 40px auto;
+  margin: 100px auto;
   inline-size: 60%;
+  color: rgb(120, 120, 120);
 }
 
 nav {
@@ -34,13 +35,15 @@ nav {
   align-items: center;
   font-size: 0.8em;
   inline-size: 100%;
-  padding: 30px 100px;
+  padding: 30px 100px 20px;
+  background: rgb(255, 255, 255);
+  border-block-end: 1px solid rgb(225, 225, 225);
 }
 
 .link {
   padding: 7px;
   border-radius: 5px;
-  color: rgb(30, 30, 30);
+  color: rgb(255, 82, 82);
   outline: none;
   text-decoration: none;
   margin-inline-end: 50px;
