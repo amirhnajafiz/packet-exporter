@@ -3,7 +3,10 @@
     Comming Soon!
   </h1>
   <p class="about-text">
-    Right now you can find all of the documents on Stallion organization in Github.
+    Right now you can find all of the documents on Stallion organization in Github.<br />
+    Check the organization in <a href="https://github.com/official-stallion">here</a>.<br /><br />
+    Full documents will be available on Augest 2023.<br />
+    Thanks for supporting us.
   </p>
 </template>
 
