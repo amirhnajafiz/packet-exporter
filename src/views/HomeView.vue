@@ -5,7 +5,9 @@ import { RouterLink } from 'vue-router'
 <template>
     <img class="img" src="../assets/stallion.png" alt="main-logo" />
     <small class="ref">
-      Fast and Reliable Message Broker
+      Fast and Reliable Message Broker implemented with Go programming language.
+      Get yourself on Stallion and deliver your events as fast as possible.
+      Monitor your events, benchmark your system, set authentication for your clients and ...
     </small>
     <RouterLink class="start-btn" to="/about">
       Get Started!
@@ -22,8 +24,9 @@ import { RouterLink } from 'vue-router'
 
 .ref {
   display: block;
-  margin-block-start: 30px;
-  text-align: center;
+  inline-size: 40%;
+  margin: 50px auto;
+  text-align: justify;
   color: rgb(120, 120, 120);
 }
 
