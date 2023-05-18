@@ -1,5 +1,5 @@
 <template>
   <div>
-    Welcome to Stallion
+    Welcome to Stallion official website.
   </div>
 </template>
