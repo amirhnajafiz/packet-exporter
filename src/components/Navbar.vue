@@ -26,7 +26,7 @@ nav {
   align-items: center;
   font-size: 0.8em;
   inline-size: 100%;
-  padding: 30px 100px 20px;
+  padding: 15px 100px 10px;
   background: rgb(255, 255, 255);
   border-block-end: 1px solid rgb(225, 225, 225);
 }
@@ -42,6 +42,7 @@ nav {
 
 .link:hover {
   color: rgb(120, 120, 120);
+  box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.2);
 }
 
 .right-link {

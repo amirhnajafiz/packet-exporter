@@ -1,8 +1,15 @@
+<script setup>
+import { RouterLink } from 'vue-router'
+</script>
+
 <template>
     <img class="img" src="../assets/stallion.png" alt="main-logo" />
     <small class="ref">
       Fast and Reliable Message Broker
     </small>
+    <RouterLink class="start-btn" to="/about">
+      Get Started!
+    </RouterLink>
 </template>
 
 <style scoped>
@@ -18,5 +25,22 @@
   margin-block-start: 30px;
   text-align: center;
   color: rgb(120, 120, 120);
+}
+
+.start-btn {
+  outline: none;
+  text-decoration: none;
+  color: #ffffff;
+  background: rgb(255, 82, 82);
+  padding: 10px 20px;
+  border-radius: 5px;
+  display: block;
+  margin: 50px auto;
+  inline-size: 140px;
+}
+
+.start-btn:hover {
+  background: rgb(255, 55, 55);
+  box-shadow: 0px 0px 4px 1px rgba(0, 0, 0, 0.2);
 }
 </style>
