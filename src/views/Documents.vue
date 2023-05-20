@@ -1,6 +1,6 @@
 <template>
   <h1>
-    Comming Soon!
+    Documents
   </h1>
   <p class="about-text">
     Right now you can find all of the documents on Stallion organization in Github.<br />
