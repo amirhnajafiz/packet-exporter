@@ -3,7 +3,7 @@ import { RouterLink } from 'vue-router'
 </script>
 
 <template>
-    <img class="img" src="../assets/stallion.png" alt="main-logo" />
+    <img class="img" src="https://avatars.githubusercontent.com/u/113413625?s=200&v=4" alt="main-logo" />
     <small class="ref">
       Fast and Reliable Message Broker implemented with Go programming language.
       Get yourself on Stallion and deliver your events as fast as possible.
@@ -16,6 +16,7 @@ import { RouterLink } from 'vue-router'
 
 <style scoped>
 .img {
+  width: 220px !important;
   display: block;
   margin: 100px auto 0;
   inline-size: 40%;
