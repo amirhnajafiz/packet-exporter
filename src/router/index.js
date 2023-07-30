@@ -6,17 +6,17 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
+      path: '/website',
       name: 'home',
       component: HomeView
     },
     {
-      path: '/about',
+      path: '/website/about',
       name: 'about',
       component: () => import('../views/AboutView.vue')
     },
     {
-      path: '/docs',
+      path: '/website/docs',
       name: 'docs',
       component: DocumentsView
     }
