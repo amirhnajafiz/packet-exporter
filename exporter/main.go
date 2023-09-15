@@ -51,12 +51,14 @@ func pull(namespace, subsystem string, port, interval int) error {
 	}
 
 	// make http request to metrics endpoint
-	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("127.0.0.1:%d", port), nil)
+	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://127.0.0.1:%d/metrics", port), nil)
 	if err != nil {
 		return err
 	}
 
 	for {
+		time.Sleep(time.Duration(interval) * time.Second)
+
 		client := &http.Client{}
 		rsp, er := client.Do(request)
 		if er != nil {
@@ -78,8 +80,6 @@ func pull(namespace, subsystem string, port, interval int) error {
 		for _, item := range responseInstance.ResponseTime {
 			m.Requests.Observe(item)
 		}
-
-		time.Sleep(time.Duration(interval) * time.Second)
 	}
 }
 
