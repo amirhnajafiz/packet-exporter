@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -16,8 +19,8 @@ type (
 	}
 
 	metrics struct {
-		Requests prometheus.Counter
-		Logs     prometheus.Counter
+		Requests prometheus.Histogram
+		Logs     prometheus.Histogram
 		Response prometheus.Histogram
 	}
 )
@@ -25,13 +28,13 @@ type (
 func pull(namespace, subsystem string, port, interval int) error {
 	// register metrics
 	m := metrics{
-		Requests: prometheus.NewCounter(prometheus.CounterOpts{
+		Requests: prometheus.NewHistogram(prometheus.HistogramOpts{
 			Namespace: namespace,
 			Subsystem: subsystem,
 			Name:      "total_requests",
 			Help:      "total number of service requests",
 		}),
-		Logs: prometheus.NewCounter(prometheus.CounterOpts{
+		Logs: prometheus.NewHistogram(prometheus.HistogramOpts{
 			Namespace: namespace,
 			Subsystem: subsystem,
 			Name:      "logs_requests",
@@ -51,7 +54,31 @@ func pull(namespace, subsystem string, port, interval int) error {
 		return err
 	}
 
-	// update metrics
+	for {
+		client := &http.Client{}
+		rsp, er := client.Do(request)
+		if er != nil {
+			log.Println(fmt.Errorf("server failed, error=%w", er))
+
+			continue
+		}
+
+		responseInstance := new(response)
+		if e := json.NewDecoder(rsp.Body).Decode(responseInstance); e != nil {
+			log.Println(fmt.Errorf("parse response failed, error=%w", e))
+
+			continue
+		}
+
+		m.Requests.Observe(float64(responseInstance.Requests))
+		m.Logs.Observe(float64(responseInstance.Logs))
+
+		for _, item := range responseInstance.ResponseTime {
+			m.Requests.Observe(item)
+		}
+
+		time.Sleep(time.Duration(interval) * time.Second)
+	}
 }
 
 func main() {
