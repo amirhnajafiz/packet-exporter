@@ -20,14 +20,18 @@ let metrics = {
 console.error = console.log;
 
 
+app.get('/metrics', (_, res) => {
+  res.json(metrics);
+})
+
 app.get('/', (req, res) => {
-  let startTime = new Date();
+  let startTime = performance.now();
 
   console.log(`${new Date()}[${req.method}] path: ${req.url}`);
 
   metrics.requests++;
 
-  let endTime = new Date();
+  let endTime = performance.now();
 
   metrics.response_time.push(endTime - startTime);
 
@@ -35,14 +39,14 @@ app.get('/', (req, res) => {
 });
 
 app.post('/log', (req, res) => {
-  let startTime = new Date();
+  let startTime = performance.now();
 
   console.log(`${new Date()}[${req.method}] path: ${req.url}`);
 
   metrics.requests++;
   metrics.logs++;
 
-  let endTime = new Date();
+  let endTime = performance.now();
 
   metrics.response_time.push(endTime - startTime);
 
