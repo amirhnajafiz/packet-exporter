@@ -1,21 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: k8s-sidecars
   labels:
-    app: nginx
+    app: node
+    type: js.app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: k8s-sidecar
   template:
     metadata:
       labels:
-        app: nginx
+        app: k8s-sidecar
     spec:
       containers:
-        - name: nginx
-          image: nginx:1.14.2
+        - name: node-app
+          image: amirhossein21/k8s-sidecar-app:latest
           ports:
             - containerPort: 80
+          env:
+            - name: HTTP_PORT
+              value: "80"
+        - name: node-exporter
+          image: amirhossein21/k8s-sidecar-exporter:latest
+          ports:
+            - containerPort: 9090
+          env:
+            - name: NAMESPACE
+              value: "default"
+            - name: SUBSYSTEM
+              value: "k8s-sidecars"
+            - name: TARGET_PORT
+              value: "80"
+            - name: SYSTEM_PORT
+              value: "9090"
+            - name: INTERVAL
+              value: "5"
