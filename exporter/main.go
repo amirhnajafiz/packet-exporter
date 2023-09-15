@@ -84,6 +84,13 @@ func pull(namespace, subsystem string, port, interval int) error {
 func main() {
 	http.Handle("/metrics", promhttp.Handler())
 
+	go func() {
+		err := pull("", "", 9090, 10)
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	if err := http.ListenAndServe(":2112", nil); err != nil {
 		panic(err)
 	}
