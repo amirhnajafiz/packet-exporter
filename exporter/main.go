@@ -16,14 +16,34 @@ type (
 	}
 
 	metrics struct {
-		Requests *prometheus.Counter
-		Logs     *prometheus.Counter
+		Requests prometheus.Counter
+		Logs     prometheus.Counter
 		Response prometheus.Histogram
 	}
 )
 
-func pull(port, interval int) error {
+func pull(namespace, subsystem string, port, interval int) error {
 	// register metrics
+	m := metrics{
+		Requests: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: subsystem,
+			Name:      "total_requests",
+			Help:      "total number of service requests",
+		}),
+		Logs: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: namespace,
+			Subsystem: subsystem,
+			Name:      "logs_requests",
+			Help:      "total number of service logs requests",
+		}),
+		Response: prometheus.NewHistogram(prometheus.HistogramOpts{
+			Namespace: namespace,
+			Subsystem: subsystem,
+			Name:      "response_time",
+			Help:      "http server response time of each request",
+		}),
+	}
 
 	// make http request to metrics endpoint
 	request, err := http.NewRequest(http.MethodGet, fmt.Sprintf("127.0.0.1:%d", port), nil)
