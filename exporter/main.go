@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -82,16 +84,22 @@ func pull(namespace, subsystem string, port, interval int) error {
 }
 
 func main() {
+	namespace := os.Getenv("NAMESPACE")
+	subsystem := os.Getenv("SUBSYSTEM")
+	systemPort, _ := strconv.Atoi(os.Getenv("SYSTEM_PORT"))
+	targetPort, _ := strconv.Atoi(os.Getenv("TARGET_PORT"))
+	interval, _ := strconv.Atoi(os.Getenv("INTERVAL"))
+
 	http.Handle("/metrics", promhttp.Handler())
 
 	go func() {
-		err := pull("", "", 9090, 10)
+		err := pull(namespace, subsystem, targetPort, interval)
 		if err != nil {
 			panic(err)
 		}
 	}()
 
-	if err := http.ListenAndServe(":2112", nil); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf("%d", systemPort), nil); err != nil {
 		panic(err)
 	}
 }
