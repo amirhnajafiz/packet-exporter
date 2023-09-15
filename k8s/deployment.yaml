@@ -23,6 +23,9 @@ spec:
           env:
             - name: HTTP_PORT
               value: "80"
+          volumeMounts:
+            - name: log-file
+              mountPath: /app/log.txt
         - name: node-exporter
           image: amirhossein21/k8s-sidecar-exporter:latest
           ports:
@@ -38,3 +41,28 @@ spec:
               value: "9090"
             - name: INTERVAL
               value: "5"
+        - name: elk-exporter
+          image: docker.elastic.co/beats/filebeat:7.4.2
+          env:
+            - name: ELASTICSEARCH_HOST
+              value: elasticsearch.elasticsearch
+            - name: ELASTICSEARCH_PORT
+              value: "9200"
+          volumeMounts:
+            - name: log-file
+              mountPath: /var/log/log.txt
+              readOnly: true
+              subPath: log.txt
+            - name: elk-config
+              mountPath: /etc/filebeat/filebeat.yml
+              readOnly: true
+              subPath: filebeat.yml
+      volumes:
+        - name: log-file
+          hostPath:
+            path: /app
+            type: DirectoryOrCreate
+        - name: elk-config
+          configMap:
+            defaultMode: 0600
+            name: elk-exporter-configs
