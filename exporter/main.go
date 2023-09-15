@@ -78,7 +78,7 @@ func pull(namespace, subsystem string, port, interval int) error {
 		m.Logs.Observe(float64(responseInstance.Logs))
 
 		for _, item := range responseInstance.ResponseTime {
-			m.Requests.Observe(item)
+			m.Response.Observe(item)
 		}
 	}
 }
