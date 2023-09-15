@@ -99,7 +99,9 @@ func main() {
 		}
 	}()
 
-	if err := http.ListenAndServe(fmt.Sprintf("%d", systemPort), nil); err != nil {
+	log.Println(fmt.Sprintf("exporting every %d seconds on port %d ...", interval, systemPort))
+
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", systemPort), nil); err != nil {
 		panic(err)
 	}
 }
