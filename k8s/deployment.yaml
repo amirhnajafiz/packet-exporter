@@ -54,7 +54,7 @@ spec:
               readOnly: true
               subPath: log.txt
             - name: elk-config
-              mountPath: /etc/filebeat/filebeat.yml
+              mountPath: /usr/share/filebeat/filebeat.yml
               readOnly: true
               subPath: filebeat.yml
       volumes:
