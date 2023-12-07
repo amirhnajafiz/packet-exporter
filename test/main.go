@@ -19,7 +19,7 @@ func main() {
 		lvl = zapcore.WarnLevel
 	}
 
-	encoder := zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig())
+	encoder := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 	defaultCore := zapcore.NewCore(encoder, zapcore.Lock(zapcore.AddSync(os.Stderr)), lvl)
 	cores := []zapcore.Core{
 		defaultCore,
