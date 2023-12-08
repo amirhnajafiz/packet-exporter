@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"k8s.io/api/core/v1"
@@ -39,6 +40,20 @@ func main() {
 	// get namespace & deployment
 	namespace := os.Getenv("NAMESPACE")
 	deploymentName := os.Getenv("DEPLOYMENT")
+
+	// main loop
+	for {
+		// list pods
+		pods, er := getPodsOfDeployment(cs, namespace, deploymentName)
+		if er != nil {
+			panic(er)
+		}
+
+		// iterate pods
+		for _, pod := range pods {
+			log.Println(pod.Name)
+		}
+	}
 
 	// TODO: create logs option
 	// TODO: get deployment name
