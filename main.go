@@ -1,12 +1,8 @@
 package main
 
-import (
-	"k8s.io/client-go/rest"
-)
-
 func main() {
-	// in cluster configs
-	config, err := rest.InClusterConfig()
+	// get cluster configs
+	config, err := ClusterConfigs()
 	if err != nil {
 		panic(err)
 	}
