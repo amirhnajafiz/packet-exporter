@@ -7,6 +7,12 @@ func main() {
 		panic(err)
 	}
 
+	// create an instance of client set
+	cs, err := ClientSet(config)
+	if err != nil {
+		panic(err)
+	}
+
 	// TODO: create logs option
 	// TODO: get namespace from env
 	// TODO: get deployment name
