@@ -4,15 +4,19 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/nats-io/nats.go"
 	"io"
 	"log"
+	"strings"
 
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
 type worker struct {
-	CS *kubernetes.Clientset
+	Conn  *nats.Conn
+	CS    *kubernetes.Clientset
+	Topic string
 }
 
 func (w worker) Do(ctx context.Context, pod v1.Pod) {
@@ -41,7 +45,11 @@ func (w worker) Do(ctx context.Context, pod v1.Pod) {
 			for reader.Scan() {
 				line = reader.Text()
 
-				fmt.Println(encodeLog(line))
+				topic := fmt.Sprintf("%s.logs.%s", w.Topic, strings.ToLower(encodeLog(line)))
+
+				if err := w.Conn.Publish(topic, []byte(line)); err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/nats-io/nats.go"
 	"k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -40,10 +41,22 @@ func main() {
 	// get namespace & deployment
 	namespace := os.Getenv("NAMESPACE")
 	deploymentName := os.Getenv("DEPLOYMENT")
+	natsCluster := os.Getenv("NATS_HOST")
+	topic := os.Getenv("NATS_TOPIC")
+
+	// open nats connection
+	nc, err := nats.Connect(natsCluster)
+	if err != nil {
+		panic(err)
+	}
 
 	ctx := context.Background()
 	wg := sync.WaitGroup{}
-	workerInstance := worker{CS: cs}
+	workerInstance := worker{
+		Conn:  nc,
+		CS:    cs,
+		Topic: topic,
+	}
 
 	// list pods
 	pods, er := getPodsOfDeployment(cs, namespace, deploymentName)
