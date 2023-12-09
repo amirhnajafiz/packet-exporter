@@ -19,10 +19,14 @@ func main() {
 		lvl = zapcore.WarnLevel
 	}
 
+	logFile, _ := os.Create("log.txt")
+
 	encoder := zapcore.NewJSONEncoder(zap.NewDevelopmentEncoderConfig())
 	defaultCore := zapcore.NewCore(encoder, zapcore.Lock(zapcore.AddSync(os.Stderr)), lvl)
+	fileCore := zapcore.NewCore(encoder, zapcore.AddSync(logFile), lvl)
 	cores := []zapcore.Core{
 		defaultCore,
+		fileCore,
 	}
 
 	core := zapcore.NewTee(cores...)
