@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"io"
 	"log"
 	"strings"
 
+	"github.com/nats-io/nats.go"
 	"k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 )
