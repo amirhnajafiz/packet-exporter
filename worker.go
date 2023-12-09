@@ -11,11 +11,11 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-type Worker struct {
+type worker struct {
 	CS *kubernetes.Clientset
 }
 
-func (w Worker) Do(ctx context.Context, pod v1.Pod) {
+func (w worker) Do(ctx context.Context, pod v1.Pod) {
 	PodLogsConnection := w.CS.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &v1.PodLogOptions{
 		Follow:    true,
 		TailLines: &[]int64{int64(10)}[0],
@@ -41,7 +41,7 @@ func (w Worker) Do(ctx context.Context, pod v1.Pod) {
 			for reader.Scan() {
 				line = reader.Text()
 
-				fmt.Println(EncodeLog(line))
+				fmt.Println(encodeLog(line))
 			}
 		}
 	}

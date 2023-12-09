@@ -7,8 +7,8 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// ClusterConfigs loads configs of k8s cluster
-func ClusterConfigs() (*rest.Config, error) {
+// clusterConfigs loads configs of k8s cluster
+func clusterConfigs() (*rest.Config, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get cluster configs: %w", err)
@@ -17,8 +17,8 @@ func ClusterConfigs() (*rest.Config, error) {
 	return config, nil
 }
 
-// ClientSet opens a new client
-func ClientSet(config *rest.Config) (*kubernetes.Clientset, error) {
+// clientSet opens a new client
+func clientSet(config *rest.Config) (*kubernetes.Clientset, error) {
 	client, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create client set: %w", err)

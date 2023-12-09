@@ -26,13 +26,13 @@ func getPodsOfDeployment(client *kubernetes.Clientset, namespace string, deploym
 
 func main() {
 	// get cluster configs
-	config, err := ClusterConfigs()
+	config, err := clusterConfigs()
 	if err != nil {
 		panic(err)
 	}
 
 	// create an instance of client set
-	cs, err := ClientSet(config)
+	cs, err := clientSet(config)
 	if err != nil {
 		panic(err)
 	}
@@ -43,6 +43,7 @@ func main() {
 
 	ctx := context.Background()
 	wg := sync.WaitGroup{}
+	workerInstance := worker{CS: cs}
 
 	// list pods
 	pods, er := getPodsOfDeployment(cs, namespace, deploymentName)
@@ -54,8 +55,9 @@ func main() {
 	for _, pod := range pods {
 		wg.Add(1)
 
+		// start a new go routine
 		go func(p v1.Pod) {
-			Worker(ctx, cs, p)
+			workerInstance.Do(ctx, p)
 			wg.Done()
 		}(pod)
 	}

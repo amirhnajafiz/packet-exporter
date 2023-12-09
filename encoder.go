@@ -1,17 +1,15 @@
 package main
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
 const unknownLevel = "Unknown"
 
-type encodeLog struct {
+type encode struct {
 	Level string `json:"L"`
 }
 
-func EncodeLog(log string) string {
-	tmp := new(encodeLog)
+func encodeLog(log string) string {
+	tmp := new(encode)
 
 	if err := json.Unmarshal([]byte(log), tmp); err != nil {
 		return unknownLevel
