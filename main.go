@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -76,7 +77,16 @@ func main() {
 				continue
 			}
 
-			stdout := buf.String()
+			// split logs by the ending delimiter
+			logs := strings.Split(buf.String(), "\n")
+			for _, tmp := range logs {
+				if len(tmp) < 2 {
+					continue
+				}
+
+				// encode logs
+				fmt.Println(EncodeLog(tmp))
+			}
 		}
 	}
 
