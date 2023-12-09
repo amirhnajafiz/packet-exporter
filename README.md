@@ -8,3 +8,4 @@ them over the following topics over a ```NATS``` cluster.
 2. ```{service-name}.logs.warning```
 3. ```{service-name}.logs.info```
 4. ```{service-name}.logs.error```
+5. ```{service-name}.logs.unknown```
