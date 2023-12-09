@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"sync"
 
@@ -61,5 +62,9 @@ func main() {
 		}(pod)
 	}
 
+	log.Println("logs consuming started ...")
+
 	wg.Wait()
+
+	log.Println("logs consuming stopped ...")
 }

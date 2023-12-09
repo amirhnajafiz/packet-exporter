@@ -29,7 +29,7 @@ func (w worker) Do(ctx context.Context, pod v1.Pod) {
 	defer func(LogStream io.ReadCloser) {
 		err := LogStream.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println(fmt.Errorf("failed to close pod=%s stream: %w", pod.Name, err))
 		}
 	}(LogStream)
 
@@ -48,7 +48,7 @@ func (w worker) Do(ctx context.Context, pod v1.Pod) {
 				topic := fmt.Sprintf("%s.logs.%s", w.Topic, strings.ToLower(encodeLog(line)))
 
 				if err := w.Conn.Publish(topic, []byte(line)); err != nil {
-					log.Println(err)
+					log.Println(fmt.Errorf("failed to publish pod=%s logs: %w", pod.Name, err))
 				}
 			}
 		}
