@@ -1,13 +1,9 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io"
-	"log"
 	"os"
-	"strings"
 
 	"k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -56,37 +52,7 @@ func main() {
 
 		// iterate pods
 		for _, pod := range pods {
-			// create get logs request
-			podLogOpts := v1.PodLogOptions{}
-			req := cs.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &podLogOpts)
-
-			podLogs, e := req.Stream(ctx) // opening pod logs request
-			if e != nil {
-				log.Println(e)
-
-				continue
-			}
-
-			// create a buffer to read logs
-			buf := new(bytes.Buffer)
-
-			_, err = io.Copy(buf, podLogs)
-			if err != nil {
-				log.Println(err)
-
-				continue
-			}
-
-			// split logs by the ending delimiter
-			logs := strings.Split(buf.String(), "\n")
-			for _, tmp := range logs {
-				if len(tmp) < 2 {
-					continue
-				}
-
-				// encode logs
-				fmt.Println(EncodeLog(tmp))
-			}
+			go Worker(ctx, cs, pod)
 		}
 	}
 
