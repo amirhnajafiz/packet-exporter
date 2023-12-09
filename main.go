@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"sync"
 
 	"k8s.io/api/core/v1"
 	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,20 +42,25 @@ func main() {
 	deploymentName := os.Getenv("DEPLOYMENT")
 
 	ctx := context.Background()
+	wg := sync.WaitGroup{}
 
-	// main loop
-	for {
-		// list pods
-		pods, er := getPodsOfDeployment(cs, namespace, deploymentName)
-		if er != nil {
-			panic(er)
-		}
-
-		// iterate pods
-		for _, pod := range pods {
-			go Worker(ctx, cs, pod)
-		}
+	// list pods
+	pods, er := getPodsOfDeployment(cs, namespace, deploymentName)
+	if er != nil {
+		panic(er)
 	}
+
+	// iterate pods
+	for _, pod := range pods {
+		wg.Add(1)
+
+		go func(p v1.Pod) {
+			Worker(ctx, cs, p)
+			wg.Done()
+		}(pod)
+	}
+
+	wg.Wait()
 
 	// TODO: connect to NATS
 	// TODO: publish over a topic
