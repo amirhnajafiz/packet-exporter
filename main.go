@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"os"
 
@@ -41,6 +43,8 @@ func main() {
 	namespace := os.Getenv("NAMESPACE")
 	deploymentName := os.Getenv("DEPLOYMENT")
 
+	ctx := context.Background()
+
 	// main loop
 	for {
 		// list pods
@@ -51,7 +55,28 @@ func main() {
 
 		// iterate pods
 		for _, pod := range pods {
-			log.Println(pod.Name)
+			// create get logs request
+			podLogOpts := v1.PodLogOptions{}
+			req := cs.CoreV1().Pods(pod.Namespace).GetLogs(pod.Name, &podLogOpts)
+
+			podLogs, e := req.Stream(ctx) // opening pod logs request
+			if e != nil {
+				log.Println(e)
+
+				continue
+			}
+
+			// create a buffer to read logs
+			buf := new(bytes.Buffer)
+
+			_, err = io.Copy(buf, podLogs)
+			if err != nil {
+				log.Println(err)
+
+				continue
+			}
+
+			stdout := buf.String()
 		}
 	}
 
