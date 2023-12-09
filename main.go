@@ -90,12 +90,6 @@ func main() {
 		}
 	}
 
-	// TODO: create logs option
-	// TODO: get deployment name
-	// TODO: get deployment pods
-	// TODO: create a worker for each pod
 	// TODO: connect to NATS
-	// TODO: monitor each pod for incoming logs
-	// TODO: unmarshal to an struct
 	// TODO: publish over a topic
 }
