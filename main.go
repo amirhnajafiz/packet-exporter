@@ -52,9 +52,10 @@ func main() {
 		log.Fatalf("failed to start manager reader: %v\n", err)
 	}
 
-	// create a new pool to process packetmetas
+	// create a new pool to process packetmetas into prometheus metrics
 	worker.New(5, channel)
 
+	// wait for termination signal
 	<-sig
 	log.Println("exiting...")
 }
