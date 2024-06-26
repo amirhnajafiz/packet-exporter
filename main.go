@@ -8,22 +8,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/amirhnajafiz/packet-exporter/internal/model"
 	"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/perf"
 	"github.com/cilium/ebpf/rlimit"
 	"github.com/vishvananda/netlink"
 )
-
-type packetInfo struct {
-	SrcIP      uint32
-	DestIP     uint32
-	SrcPort    uint16
-	DestPort   uint16
-	Protocol   uint8
-	IfIndex    uint32
-	PayloadLen uint32
-}
 
 func main() {
 	// Allow the current process to lock memory for eBPF maps
@@ -53,7 +44,7 @@ func main() {
 	}
 
 	for _, link := range links {
-		if err := attachXDP(link.Attrs().Name, objs.PacketMonitor); err != nil {
+		if err := attachXDP(link.Attrs().Index, objs.PacketMonitor); err != nil {
 			log.Printf("failed to attach XDP to interface %s: %v", link.Attrs().Name, err)
 		} else {
 			log.Printf("attached XDP to interface %s", link.Attrs().Name)
@@ -79,7 +70,7 @@ func main() {
 				continue
 			}
 
-			var pkt packetInfo
+			var pkt model.PacketMeta
 			if err := binary.Read(record.RawSample, binary.LittleEndian, &pkt); err != nil {
 				log.Printf("failed to decode received data: %v", err)
 				continue
@@ -106,7 +97,7 @@ func main() {
 	log.Println("exiting...")
 }
 
-func attachXDP(iface string, prog *ebpf.Program) error {
+func attachXDP(iface int, prog *ebpf.Program) error {
 	link, err := link.AttachXDP(link.XDPOptions{
 		Program:   prog,
 		Interface: iface,
