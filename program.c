@@ -6,6 +6,8 @@
 #include <linux/bpf.h>
 #include <bpf/bpf_helpers.h>
 
+// packet_info is a struct that I defined in order to extract a packet data
+// from memory. this struct will be returned to our eBPF program in Golang.
 struct packet_info {
     __u32 src_ip;
     __u32 dest_ip;
@@ -23,10 +25,12 @@ struct {
 
 SEC("xdp")
 int packet_monitor(struct xdp_md *ctx) {
+    // allocate memory parts to read packet info
     void *data_end = (void *)(long)ctx->data_end;
     void *data = (void *)(long)ctx->data;
     struct ethhdr *eth = data;
 
+    // drop if missing
     if ((void *)(eth + 1) > data_end) {
         return XDP_DROP;
     }
@@ -36,6 +40,7 @@ int packet_monitor(struct xdp_md *ctx) {
         return XDP_DROP;
     }
 
+    // read ip data and insert inside a packet_info struct
     struct packet_info pkt = {};
     pkt.src_ip = ip->saddr;
     pkt.dest_ip = ip->daddr;
