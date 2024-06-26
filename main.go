@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/binary"
 	"fmt"
 	"log"
 	"os"
@@ -11,12 +9,15 @@ import (
 
 	"github.com/amirhnajafiz/packet-exporter/internal/model"
 	"github.com/amirhnajafiz/packet-exporter/internal/xdp"
-	"github.com/cilium/ebpf/perf"
 	"github.com/cilium/ebpf/rlimit"
 	"github.com/vishvananda/netlink"
 )
 
 func main() {
+	// listen for program termination signals
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+
 	// allow the current process to lock memory for eBPF maps
 	if err := rlimit.RemoveMemlock(); err != nil {
 		log.Fatalf("failed to remove memlock limit: %v", err)
@@ -46,58 +47,35 @@ func main() {
 		}
 	}
 
-	// set up a perf reader to read packet events
-	rd, err := perf.NewReader(mgr.Events, os.Getpagesize())
+	// run manager reader method
+	channel, err := mgr.Reader()
 	if err != nil {
-		log.Fatalf("failed to create perf reader: %v", err)
+		log.Fatalf("failed to start manager reader: %v\n", err)
 	}
-	defer rd.Close()
 
-	go func() {
-		for {
-			record, err := rd.Read()
-			if err != nil {
-				log.Fatalf("failed to read from perf reader: %v", err)
-			}
-
-			if record.LostSamples != 0 {
-				log.Printf("lost %d samples", record.LostSamples)
-				continue
-			}
-
-			reader := bytes.NewReader(record.RawSample)
-
-			var pkt model.PacketMeta
-			if err := binary.Read(reader, binary.LittleEndian, &pkt); err != nil {
-				log.Printf("failed to decode received data: %v", err)
-				continue
-			}
-
-			link, err := netlink.LinkByIndex(int(pkt.IfIndex))
-			if err != nil {
-				log.Printf("failed to get interface name: %v", err)
-				continue
-			}
-			ifaceName := link.Attrs().Name
-
-			srcIP := fmt.Sprintf("%d.%d.%d.%d", pkt.SrcIP&0xff, (pkt.SrcIP>>8)&0xff, (pkt.SrcIP>>16)&0xff, (pkt.SrcIP>>24)&0xff)
-			destIP := fmt.Sprintf("%d.%d.%d.%d", pkt.DestIP&0xff, (pkt.DestIP>>8)&0xff, (pkt.DestIP>>16)&0xff, (pkt.DestIP>>24)&0xff)
-			log.Printf("Packet: Interface=%s, SrcIP=%s, DestIP=%s, SrcPort=%d, DestPort=%d, Protocol=%d, PayloadLen=%d",
-				ifaceName, srcIP, destIP, pkt.SrcPort, pkt.DestPort, pkt.Protocol, pkt.PayloadLen)
-
-			_ = &model.Payload{
-				Src:           srcIP,
-				Dest:          destIP,
-				Protocol:      pkt.Protocol,
-				InterfaceName: ifaceName,
-				PayloadLen:    pkt.PayloadLen,
-			}
+	// get events from the give channel
+	for pkt := range channel {
+		link, err := netlink.LinkByIndex(int(pkt.IfIndex))
+		if err != nil {
+			log.Printf("failed to get interface name: %v", err)
+			continue
 		}
-	}()
+		ifaceName := link.Attrs().Name
 
-	// Listen for program termination signals
-	sig := make(chan os.Signal, 1)
-	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+		srcIP := fmt.Sprintf("%d.%d.%d.%d", pkt.SrcIP&0xff, (pkt.SrcIP>>8)&0xff, (pkt.SrcIP>>16)&0xff, (pkt.SrcIP>>24)&0xff)
+		destIP := fmt.Sprintf("%d.%d.%d.%d", pkt.DestIP&0xff, (pkt.DestIP>>8)&0xff, (pkt.DestIP>>16)&0xff, (pkt.DestIP>>24)&0xff)
+		log.Printf("Packet: Interface=%s, SrcIP=%s, DestIP=%s, SrcPort=%d, DestPort=%d, Protocol=%d, PayloadLen=%d",
+			ifaceName, srcIP, destIP, pkt.SrcPort, pkt.DestPort, pkt.Protocol, pkt.PayloadLen)
+
+		_ = &model.Payload{
+			Src:           srcIP,
+			Dest:          destIP,
+			Protocol:      pkt.Protocol,
+			InterfaceName: ifaceName,
+			PayloadLen:    pkt.PayloadLen,
+		}
+	}
+
 	<-sig
 	log.Println("exiting...")
 }
