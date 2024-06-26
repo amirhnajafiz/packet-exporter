@@ -11,8 +11,6 @@ import (
 
 	"github.com/amirhnajafiz/packet-exporter/internal/model"
 	"github.com/amirhnajafiz/packet-exporter/internal/xdp"
-	"github.com/cilium/ebpf"
-	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/perf"
 	"github.com/cilium/ebpf/rlimit"
 	"github.com/vishvananda/netlink"
@@ -33,21 +31,22 @@ func main() {
 	defer mgr.PacketMonitor.Close()
 	defer mgr.Events.Close()
 
-	// Attach the program to all network interfaces
+	// attach the program to all network interfaces
 	links, err := netlink.LinkList()
 	if err != nil {
 		log.Fatalf("failed to list network interfaces: %v", err)
 	}
 
+	// NOTE: change this section to select your give interfaces
 	for _, link := range links {
-		if err := attachXDP(link.Attrs().Index, mgr.PacketMonitor); err != nil {
-			log.Printf("failed to attach XDP to interface %s: %v", link.Attrs().Name, err)
+		if err := mgr.Attach(link.Attrs().Name, link.Attrs().Index); err != nil {
+			log.Printf("failed to attach XDP to interface: %v", err)
 		} else {
 			log.Printf("attached XDP to interface %s", link.Attrs().Name)
 		}
 	}
 
-	// Set up a perf reader to read packet events
+	// set up a perf reader to read packet events
 	rd, err := perf.NewReader(mgr.Events, os.Getpagesize())
 	if err != nil {
 		log.Fatalf("failed to create perf reader: %v", err)
@@ -101,17 +100,4 @@ func main() {
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
 	<-sig
 	log.Println("exiting...")
-}
-
-func attachXDP(iface int, prog *ebpf.Program) error {
-	link, err := link.AttachXDP(link.XDPOptions{
-		Program:   prog,
-		Interface: iface,
-		Flags:     link.XDPGenericMode,
-	})
-	if err != nil {
-		return err
-	}
-	defer link.Close()
-	return nil
 }
