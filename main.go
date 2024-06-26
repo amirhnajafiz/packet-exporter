@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"github.com/amirhnajafiz/packet-exporter/internal/model"
+	"github.com/amirhnajafiz/packet-exporter/internal/worker"
 	"github.com/amirhnajafiz/packet-exporter/internal/xdp"
 	"github.com/cilium/ebpf/rlimit"
 	"github.com/vishvananda/netlink"
@@ -53,28 +52,8 @@ func main() {
 		log.Fatalf("failed to start manager reader: %v\n", err)
 	}
 
-	// get events from the give channel
-	for pkt := range channel {
-		link, err := netlink.LinkByIndex(int(pkt.IfIndex))
-		if err != nil {
-			log.Printf("failed to get interface name: %v", err)
-			continue
-		}
-		ifaceName := link.Attrs().Name
-
-		srcIP := fmt.Sprintf("%d.%d.%d.%d", pkt.SrcIP&0xff, (pkt.SrcIP>>8)&0xff, (pkt.SrcIP>>16)&0xff, (pkt.SrcIP>>24)&0xff)
-		destIP := fmt.Sprintf("%d.%d.%d.%d", pkt.DestIP&0xff, (pkt.DestIP>>8)&0xff, (pkt.DestIP>>16)&0xff, (pkt.DestIP>>24)&0xff)
-		log.Printf("Packet: Interface=%s, SrcIP=%s, DestIP=%s, SrcPort=%d, DestPort=%d, Protocol=%d, PayloadLen=%d",
-			ifaceName, srcIP, destIP, pkt.SrcPort, pkt.DestPort, pkt.Protocol, pkt.PayloadLen)
-
-		_ = &model.Payload{
-			Src:           srcIP,
-			Dest:          destIP,
-			Protocol:      pkt.Protocol,
-			InterfaceName: ifaceName,
-			PayloadLen:    pkt.PayloadLen,
-		}
-	}
+	// create a new pool to process packetmetas
+	worker.New(5, channel)
 
 	<-sig
 	log.Println("exiting...")
