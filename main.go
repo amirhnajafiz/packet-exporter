@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"log"
@@ -70,8 +71,10 @@ func main() {
 				continue
 			}
 
+			reader := bytes.NewReader(record.RawSample)
+
 			var pkt model.PacketMeta
-			if err := binary.Read(record.RawSample, binary.LittleEndian, &pkt); err != nil {
+			if err := binary.Read(reader, binary.LittleEndian, &pkt); err != nil {
 				log.Printf("failed to decode received data: %v", err)
 				continue
 			}
