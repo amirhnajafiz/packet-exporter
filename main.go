@@ -87,6 +87,14 @@ func main() {
 			destIP := fmt.Sprintf("%d.%d.%d.%d", pkt.DestIP&0xff, (pkt.DestIP>>8)&0xff, (pkt.DestIP>>16)&0xff, (pkt.DestIP>>24)&0xff)
 			log.Printf("Packet: Interface=%s, SrcIP=%s, DestIP=%s, SrcPort=%d, DestPort=%d, Protocol=%d, PayloadLen=%d",
 				ifaceName, srcIP, destIP, pkt.SrcPort, pkt.DestPort, pkt.Protocol, pkt.PayloadLen)
+
+			_ = &model.Payload{
+				Src:           srcIP,
+				Dest:          destIP,
+				Protocol:      pkt.Protocol,
+				InterfaceName: ifaceName,
+				PayloadLen:    pkt.PayloadLen,
+			}
 		}
 	}()
 
