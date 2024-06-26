@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/amirhnajafiz/packet-exporter/internal/model"
+	"github.com/amirhnajafiz/packet-exporter/internal/xdp"
 	"github.com/cilium/ebpf"
 	"github.com/cilium/ebpf/link"
 	"github.com/cilium/ebpf/perf"
@@ -18,25 +19,19 @@ import (
 )
 
 func main() {
-	// Allow the current process to lock memory for eBPF maps
+	// allow the current process to lock memory for eBPF maps
 	if err := rlimit.RemoveMemlock(); err != nil {
 		log.Fatalf("failed to remove memlock limit: %v", err)
 	}
 
-	// Load pre-compiled programs into the kernel
-	objs := struct {
-		PacketMonitor *ebpf.Program `ebpf:"packet_monitor"`
-		Events        *ebpf.Map     `ebpf:"events"`
-	}{}
-	spec, err := ebpf.LoadCollectionSpec("packet_filter.o")
+	// create a new xdp manager
+	mgr, err := xdp.New("bpf/program.o")
 	if err != nil {
-		log.Fatalf("failed to load BPF program: %v", err)
+		log.Fatalf("failed to create new xdp manager: %v\n", err)
 	}
-	if err := spec.LoadAndAssign(&objs, nil); err != nil {
-		log.Fatalf("failed to load and assign BPF objects: %v", err)
-	}
-	defer objs.PacketMonitor.Close()
-	defer objs.Events.Close()
+
+	defer mgr.PacketMonitor.Close()
+	defer mgr.Events.Close()
 
 	// Attach the program to all network interfaces
 	links, err := netlink.LinkList()
@@ -45,7 +40,7 @@ func main() {
 	}
 
 	for _, link := range links {
-		if err := attachXDP(link.Attrs().Index, objs.PacketMonitor); err != nil {
+		if err := attachXDP(link.Attrs().Index, mgr.PacketMonitor); err != nil {
 			log.Printf("failed to attach XDP to interface %s: %v", link.Attrs().Name, err)
 		} else {
 			log.Printf("attached XDP to interface %s", link.Attrs().Name)
@@ -53,7 +48,7 @@ func main() {
 	}
 
 	// Set up a perf reader to read packet events
-	rd, err := perf.NewReader(objs.Events, os.Getpagesize())
+	rd, err := perf.NewReader(mgr.Events, os.Getpagesize())
 	if err != nil {
 		log.Fatalf("failed to create perf reader: %v", err)
 	}
