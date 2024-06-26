@@ -3,6 +3,11 @@ package metrics
 // Metrics sotres exporter prometheus metrics.
 type Metrics struct{}
 
+// New returns a new metrics instance.
+func New() *Metrics {
+	return &Metrics{}
+}
+
 // IncRequest based on its source, dest, protocol, and ifname.
 func (m *Metrics) IncRequest(src, dest, protocol, ifname string) {}
 

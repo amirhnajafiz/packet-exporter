@@ -12,6 +12,7 @@ type XDPManager struct {
 	Events        *ebpf.Map     `ebpf:"events"`
 }
 
+// New returns a new XDPManager instance.
 func New(program string) (*XDPManager, error) {
 	// load pre-compiled programs into the kernel
 	objs := &XDPManager{}
