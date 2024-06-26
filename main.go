@@ -4,18 +4,38 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 
+	"github.com/amirhnajafiz/packet-exporter/internal/metrics"
 	"github.com/amirhnajafiz/packet-exporter/internal/worker"
 	"github.com/amirhnajafiz/packet-exporter/internal/xdp"
 	"github.com/cilium/ebpf/rlimit"
 	"github.com/vishvananda/netlink"
 )
 
+func initVars() map[string]int {
+	variables := map[string]int{
+		"PE_WORKERS": 5,
+		"PE_PORT":    8080,
+	}
+
+	for key := range variables {
+		if value, err := strconv.Atoi(os.Getenv(key)); err == nil {
+			variables[key] = value
+		}
+	}
+
+	return variables
+}
+
 func main() {
 	// listen for program termination signals
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+
+	// init env variables
+	vars := initVars()
 
 	// allow the current process to lock memory for eBPF maps
 	if err := rlimit.RemoveMemlock(); err != nil {
@@ -52,10 +72,15 @@ func main() {
 		log.Fatalf("failed to start manager reader: %v\n", err)
 	}
 
+	log.Println("consuming...")
+
+	// create a metrics server
+	metrics.NewServer(vars["PE_PORT"])
 	// create a new pool to process packetmetas into prometheus metrics
-	worker.New(5, channel)
+	worker.New(vars["PE_WORKERS"], channel)
 
 	// wait for termination signal
 	<-sig
+
 	log.Println("exiting...")
 }
