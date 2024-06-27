@@ -2,18 +2,19 @@ package worker
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/amirhnajafiz/packet-exporter/internal/model"
 	"github.com/amirhnajafiz/packet-exporter/internal/monitoring/metrics"
 
 	"github.com/vishvananda/netlink"
+	"go.uber.org/zap"
 )
 
 // workers are processes used to handle the input packetmetas.
 type worker struct {
 	channel chan *model.PacketMeta
 	metrics *metrics.Metrics
+	logr    *zap.Logger
 }
 
 func (w worker) work() {
@@ -22,7 +23,7 @@ func (w worker) work() {
 		// find interface
 		link, err := netlink.LinkByIndex(int(pkt.IfIndex))
 		if err != nil {
-			log.Printf("failed to get interface name: %v", err)
+			w.logr.Error("failed to get interface name", zap.Error(err))
 			continue
 		}
 
@@ -33,10 +34,8 @@ func (w worker) work() {
 		src := fmt.Sprintf("%s:%d", srcIP, pkt.SrcPort)
 		dest := fmt.Sprintf("%s:%d", destIP, pkt.DestPort)
 
-		log.Printf(
-			"Packet: Interface=%s, SrcIP=%s, DestIP=%s, SrcPort=%d, DestPort=%d, Protocol=%d, PayloadLen=%d",
-			ifaceName, srcIP, destIP, pkt.SrcPort, pkt.DestPort, pkt.Protocol, pkt.PayloadLen,
-		)
+		w.logr.Info(fmt.Sprintf("Packet: Interface=%s, SrcIP=%s, DestIP=%s, SrcPort=%d, DestPort=%d, Protocol=%d, PayloadLen=%d",
+			ifaceName, srcIP, destIP, pkt.SrcPort, pkt.DestPort, pkt.Protocol, pkt.PayloadLen))
 
 		// export metrics
 		w.metrics.IncRequest(src, dest, ifaceName, int(pkt.Protocol))
