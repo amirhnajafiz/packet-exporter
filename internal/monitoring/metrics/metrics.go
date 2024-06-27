@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	"strconv"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 )
@@ -33,7 +35,21 @@ func New() *Metrics {
 }
 
 // IncRequest based on its source, dest, protocol, and ifname.
-func (m *Metrics) IncRequest(src, dest, ifname string, protocol int) {}
+func (m *Metrics) IncRequest(src, dest, ifname string, protocol int) {
+	m.requests.With(prometheus.Labels{
+		"source":    src,
+		"dest":      dest,
+		"interface": ifname,
+		"protocol":  strconv.Itoa(protocol),
+	}).Add(1)
+}
 
 // ObserveThroughput based on its source, dest, protocol, ifname, and payload size.
-func (m *Metrics) ObserveThroughput(src, dest, ifname string, protocol int, payload float64) {}
+func (m *Metrics) ObserveThroughput(src, dest, ifname string, protocol int, payload float64) {
+	m.throughput.With(prometheus.Labels{
+		"source":    src,
+		"dest":      dest,
+		"interface": ifname,
+		"protocol":  strconv.Itoa(protocol),
+	}).Observe(payload)
+}
