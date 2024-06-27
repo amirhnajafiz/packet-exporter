@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  ebpf-monitor:
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+      - SYS_RESOURCE
+    devices:
+      - /dev/bpf
+      - /dev/xdp
+    privileged: true
+    network_mode: "host"
+    ports:
+      - "8080:8080"
+    environment:
+      - PE_PORT="8080"
+      - PE_WORKERS="5"
