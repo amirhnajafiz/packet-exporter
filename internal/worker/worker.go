@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/amirhnajafiz/packet-exporter/internal/metrics"
 	"github.com/amirhnajafiz/packet-exporter/internal/model"
+	"github.com/amirhnajafiz/packet-exporter/internal/monitoring/metrics"
 
 	"github.com/vishvananda/netlink"
 )

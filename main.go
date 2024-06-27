@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/amirhnajafiz/packet-exporter/internal/metrics"
+	"github.com/amirhnajafiz/packet-exporter/internal/monitoring/metrics"
 	"github.com/amirhnajafiz/packet-exporter/internal/worker"
 	"github.com/amirhnajafiz/packet-exporter/internal/xdp"
 	"github.com/cilium/ebpf/rlimit"

@@ -1,8 +1,8 @@
 package worker
 
 import (
-	"github.com/amirhnajafiz/packet-exporter/internal/metrics"
 	"github.com/amirhnajafiz/packet-exporter/internal/model"
+	"github.com/amirhnajafiz/packet-exporter/internal/monitoring/metrics"
 )
 
 // New registers worker go-routines.
